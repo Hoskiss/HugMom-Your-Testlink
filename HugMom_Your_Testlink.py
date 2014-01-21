@@ -67,18 +67,18 @@ def main():
         for case_id in testcases_id:
             case = TestlinkCase(case_id)
 
-            # Set Priority ("High" or "Medium") Example:
+            ## Set Priority ("High" or "Medium") Example:
             # priority_key = "High"
             # testlink_web.setPriority(case, priority_key)
 
-            # Update Case in Test Plan Example:
+            ## Update Case in Test Plan Example:
             # testlink_web.updateCaseInPlan(case, "6.0.2")
 
-            # Add/Remove Case from Test Plan Example:
-            # # for remove: testlink_web.moveCaseForPlan(case, "remove", "6.0.2")
+            ## Add/Remove Case from Test Plan Example:
+            ## For remove: testlink_web.moveCaseForPlan(case, "remove", "6.0.2")
             # testlink_web.moveCaseForPlan(case, "remove", "6.0.2")
 
-            # Assign Case to Tester in Test Plan Example:
+            ## Assign Case to Tester in Test Plan Example:
             # testlink_web.assignCaseInPlan(case, "to_whom", "6.0.2", "Integrated platform")
 
     else:
