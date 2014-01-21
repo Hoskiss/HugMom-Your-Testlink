@@ -1,7 +1,7 @@
 from TestlinkWeb import TestlinkCase
 from TestlinkWeb import TestlinkWeb
 import getpass
-import optparser
+import optparse
 
 
 def main():
@@ -26,3 +26,5 @@ if __name__ == '__main__':
 
     case = TestlinkCase("1002")
     testlink_web.getCasePath(case)
+
+    testlink_web.open_urgency_page("5.0.5")
