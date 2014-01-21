@@ -10,20 +10,19 @@ import getpass
 
 def main():
     # --high          : Change priority of testcases to High (default setting)
-    #                   ex: python ./Modify_Testcase_Priority.py --high
+    #                   ex: python ./HugMom_Your_Testlink.py --high
     # -m, --medium    : Change priority of testcases to Medium
-    #                   ex: python ./Modify_Testcase_Priority.py -m
-    #                       python ./Modify_Testcase_Priority.py --medium
+    #                   ex: python ./HugMom_Your_Testlink.py -m
+    #                       python ./HugMom_Your_Testlink.py --medium
     """
     -f, --file      : Execute cases list in the specified file
-                      ex: python ./Modify_Testcase_Priority.py -f ./<your_file>.txt
-                          python ./Modify_Testcase_Priority.py --file=<your_file>.txt
+                      ex: python ./HugMom_Your_Testlink.py -f ./<your_file>.txt
+                          python ./HugMom_Your_Testlink.py --file=<your_file>.txt
     -h, --help      : Argument usage
-                      ex: python ./Modify_Testcase_Priority.py -h
-                          python ./Modify_Testcase_Priority.py --help
+                      ex: python ./HugMom_Your_Testlink.py -h
+                          python ./HugMom_Your_Testlink.py --help
     """
     #testcases_id = ["0800", "092", "000"]
-    testcases_id = ["3317"]
     #testcases_id = map(str, range(625, 631))
     # testcases_id.append("863")
     try:
@@ -65,22 +64,22 @@ def main():
     testlink_web = TestlinkWeb()
     if testlink_web.login(LOGIN_NAME, LOGIN_PWD):
 
-        # Set Priority ("High" or "Medium") Example:
-        priority_key = "High"
         for case_id in testcases_id:
             case = TestlinkCase(case_id)
-            testlink_web.setPriority(case, priority_key)
 
-        # Update Case in Test Plan Example:
-        # for case_id in testcases_id:
-        #     case = TestlinkCase(case_id)
-        #     testlink_web.updateCaseInPlan(case, "6.0.2")
+            # Set Priority ("High" or "Medium") Example:
+            # priority_key = "High"
+            # testlink_web.setPriority(case, priority_key)
 
-        # Add/Remove Case from Test Plan Example:
-        # for case_id in testcases_id:
-        #     case = TestlinkCase(case_id)
-        #     # for remove: testlink_web.moveCaseForPlan(case, "remove", "6.0.2")
-        #     testlink_web.moveCaseForPlan(case, "add", "6.0.2")
+            # Update Case in Test Plan Example:
+            # testlink_web.updateCaseInPlan(case, "6.0.2")
+
+            # Add/Remove Case from Test Plan Example:
+            # # for remove: testlink_web.moveCaseForPlan(case, "remove", "6.0.2")
+            # testlink_web.moveCaseForPlan(case, "remove", "6.0.2")
+
+            # Assign Case to Tester in Test Plan Example:
+            # testlink_web.assignCaseInPlan(case, "to_whom", "6.0.2", "Integrated platform")
 
     else:
         print ("your login name/password seems invalid, "
