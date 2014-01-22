@@ -28,13 +28,12 @@ class Tree(object):
         # expand the test suite of the case
         flag = False
         for node in nodes:
-            if folder_name in node.text:
+            if node.text.startswith(folder_name):
                 self.logger.info("Expand suite: " + folder_name)
                 node.expand()
                 flag = True
 
         if not flag:
-            self.logger.error("CAN NOT FIND FOLDER: " + folder_name)
             raise FolderNotFoundError, "CAN NOT FIND FOLDER: " + folder_name
 
     def click_folder(self, folder_name):
@@ -46,7 +45,7 @@ class Tree(object):
         # expand the test suite of the case
         flag = False
         for node in nodes:
-            if folder_name in node.text:
+            if node.text.startswith(folder_name):
                 self.logger.info("Click suite: " + folder_name)
                 node.click()
                 flag = True
