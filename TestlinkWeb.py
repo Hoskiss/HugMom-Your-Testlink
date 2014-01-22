@@ -20,16 +20,22 @@ class TestlinkCase(object):
 
 class TestlinkWeb(object):
     """
-    Version: 0.3 / 2014.01.20
+    Version: 0.4 / 2014.01.21
         - set case priority
         - add/remove case for testplan
         - update case version in testplan
+        - assign case of one platform to tester in testplan
     """
 
     def __init__(self, browser=None):
         self.URL = "http://testlink.splunk.com/index.php"
-        self.PRIORITY_MAP = {"High": "3",
-                             "Medium": "2"}
+        self.PRIORITY_MAP = { "High": "3",
+                              "Medium": "2" }
+        self.PLATFORM_MAP = { "None": "0",
+                              "Firefox + Linux": "1",
+                              "IE + Windows": "2",
+                              "Chrome + Solaris": "10",
+                              "Integrated platform": "17" }
         self.browser = browser or webdriver.Firefox()
 
         # logging
@@ -201,16 +207,18 @@ class TestlinkWeb(object):
         self.browser.switch_to_frame("mainframe")
 
         get_path = self.browser.find_element(
-            By.CSS_SELECTOR, "div.workBack h2").text.split("/")
+            By.CSS_SELECTOR, "div.workBack h2").text
+        self.logger.debug("get_path: " + get_path)
         # path rule: first part is global "splunk"
         #           second part is test suite, ex: "UI"
         #           last one is case name
-        case.test_suite = get_path[1].strip()
-        case.full_name = get_path[-1].strip()
-        case.name = re.search("splunk-\d+:(?P<name>.+)",
+        case.test_suite = get_path.split("/")[1].strip()
+        case.full_name = re.search("/ (?P<f_name>splunk-\d+:.+)",
+                                   get_path).group('f_name').strip()
+        case.name = re.search("^splunk-\d+:(?P<name>.+)",
                               case.full_name).group('name').strip()
-        case.sub_path = [part.strip() for part in get_path]
-        case.sub_path = case.sub_path[2:-1]
+        case.sub_path = map(string.strip, get_path.replace("/ "+case.full_name, "").split("/"))
+        case.sub_path = case.sub_path[2:]
 
         self.logger.debug("*" * 15)
         self.logger.debug("case.case_id: " + case.case_id)
@@ -224,6 +232,9 @@ class TestlinkWeb(object):
                         platform="Integrated platform"):
         if "add" != add_or_remove and "remove" != add_or_remove:
             print "check your second parameter, should be 'add' or 'remove'"
+            return
+        if platform not in self.PLATFORM_MAP.keys():
+            print "your specified platform does not support yet, call Hoskiss for help"
             return
 
         self.getCasePath(case)
@@ -282,12 +293,15 @@ class TestlinkWeb(object):
         assert(tooltip_count is not None)
 
         if "add" == add_or_remove:
-            checkbox_id = "achecked_tc{count}".format(count=tooltip_count)
+            checkbox_name = "achecked_tc[{count}][{p_v}]".format(count=tooltip_count,
+                                                                 p_v=self.PLATFORM_MAP[platform])
         else:
-            checkbox_id = "remove_checked_tc{count}[17]".format(count=tooltip_count)
+            checkbox_name = "remove_checked_tc[{count}][{p_v}]".format(count=tooltip_count,
+                                                                       p_v=self.PLATFORM_MAP[platform])
+        self.logger.debug("checkbox_name: " + checkbox_name)
 
         try:
-            self.browser.find_element(By.ID, checkbox_id).click()
+            self.browser.find_element(By.NAME, checkbox_name).click()
         except:
             print "check if {case} has been {a_o_r} already in {plan}!".format(
                 case=case.full_name, a_o_r=add_or_remove, plan=which_plan)
@@ -443,3 +457,118 @@ class TestlinkWeb(object):
             folder_path=case_folder, plan=which_plan)
         self.logger.info( "update < {folder_path} > in {plan}!".format(
             folder_path=case_folder, plan=which_plan) )
+
+    def getCaseTooltipCount(self, case, which_plan):
+        if hasattr(case, 'tooltip_count'):
+            return
+
+        self.getCasePath(case)
+        self.selectTestPlan(which_plan)
+
+        self.browser.find_element(
+            By.LINK_TEXT, "Update Linked Test Case Versions").click()
+        time.sleep(2)
+
+        self.browser.switch_to_default_content()
+        self.browser.switch_to_frame("mainframe")
+        self.browser.switch_to_frame("treeframe")
+
+        Select(self.browser.find_element(By.NAME,
+            "filter_toplevel_testsuite")).select_by_visible_text(
+            "{test_suite}".format(test_suite=case.test_suite))
+
+        self.browser.find_element(
+            By.CSS_SELECTOR, "input#doUpdateTree").click()
+        time.sleep(2)
+        self.browser.find_element(By.CSS_SELECTOR, "input#expand_tree").click()
+        time.sleep(2)
+
+        including_folders = self.browser.find_elements(
+            By.PARTIAL_LINK_TEXT, case.sub_path[-1])
+
+        for each_folder in including_folders:
+            self.browser.switch_to_default_content()
+            self.browser.switch_to_frame("mainframe")
+            self.browser.switch_to_frame("treeframe")
+            each_folder.click()
+            time.sleep(2)
+
+            self.browser.switch_to_default_content()
+            self.browser.switch_to_frame("mainframe")
+            self.browser.switch_to_frame("workframe")
+
+            elem = self.waitForElement(By.PARTIAL_LINK_TEXT, case.name)
+            if elem is None:
+                continue
+            else:
+                tooltip_count = elem.get_attribute("href")
+                tooltip_count = re.search("\d+", tooltip_count).group()
+                self.logger.debug("tooltip_count: " + tooltip_count)
+                break
+
+        assert(tooltip_count is not None)
+        case.tooltip_count = tooltip_count
+
+    def assignCaseInPlan(self, case, to_whom, which_plan="6.0.2",
+                         platform="Integrated platform"):
+        self.getCaseTooltipCount(case, which_plan)
+        self.selectTestPlan(which_plan)
+
+        self.browser.find_element(
+            By.LINK_TEXT, "Assign Test Case Execution").click()
+        time.sleep(2)
+
+        self.browser.switch_to_default_content()
+        self.browser.switch_to_frame("mainframe")
+        self.browser.switch_to_frame("treeframe")
+
+        Select(self.browser.find_element(By.NAME,
+            "filter_toplevel_testsuite")).select_by_visible_text(
+            "{test_suite}".format(test_suite=case.test_suite))
+
+        self.browser.find_element(
+            By.CSS_SELECTOR, "input#doUpdateTree").click()
+        time.sleep(2)
+        self.browser.find_element(By.CSS_SELECTOR, "input#expand_tree").click()
+        time.sleep(2)
+
+        including_folders = self.browser.find_elements(
+            By.PARTIAL_LINK_TEXT, case.sub_path[-1])
+
+        for each_folder in including_folders:
+            self.browser.switch_to_default_content()
+            self.browser.switch_to_frame("mainframe")
+            self.browser.switch_to_frame("treeframe")
+            each_folder.click()
+            time.sleep(2)
+
+            self.browser.switch_to_default_content()
+            self.browser.switch_to_frame("mainframe")
+            self.browser.switch_to_frame("workframe")
+
+            elem = self.waitForElement(By.NAME,
+                "tester_for_tcid[{count}][{p_v}]".format(count=case.tooltip_count,
+                                                         p_v=self.PLATFORM_MAP[platform]))
+            if elem is None:
+                continue
+            else:
+                try:
+                    Select(elem).select_by_visible_text(to_whom)
+                    self.browser.find_element(By.NAME, "doAction").click()
+                    print "Assign {plat} < {full_path} / {full_name} > to {tester} in {plan}!".format(
+                        plat=platform,
+                        full_path=case.test_suite + "/" + "/".join(case.sub_path),
+                        full_name=case.full_name,
+                        tester=to_whom,
+                        plan=which_plan)
+                    self.logger.info( "Assign {plat} < {full_path} / {full_name} > to {tester} in {plan}!".format(
+                        plat=platform,
+                        full_path=case.test_suite + "/" + "/".join(case.sub_path),
+                        full_name=case.full_name,
+                        tester=to_whom,
+                        plan=which_plan) )
+                except:
+                    print "check your tester: {tester} if exists!"
+                    self.logger.debug("check your tester: {tester} if exists!")
+                finally:
+                    break

@@ -1,0 +1,6 @@
+# you can add comment if you wanna have some information for cases
+1234 // this is first case in my list
+splunk-1234 //or you can use splunk-<case_id> to specify case
+
+# this is third case in my list
+5678
