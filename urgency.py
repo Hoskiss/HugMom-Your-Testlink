@@ -2,6 +2,7 @@ from TestlinkWeb import TestlinkCase
 from TestlinkWeb import TestlinkWeb
 import getpass
 import optparse
+from selenium.webdriver.common.by import By
 
 
 def main():
@@ -24,7 +25,5 @@ if __name__ == '__main__':
     testlink_web = TestlinkWeb()
     testlink_web.login(LOGIN_NAME, LOGIN_PWD)
 
-    case = TestlinkCase("1002")
-    testlink_web.getCasePath(case)
-
-    testlink_web.open_urgency_page("5.0.5")
+    case = TestlinkCase("408")
+    testlink_web.setCaseUrgency(test_plan="5.0.5", case=case, urgency="High")

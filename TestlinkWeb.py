@@ -7,6 +7,7 @@ import os
 import logging
 import re
 import string
+from Tree import *
 
 
 class TestlinkCase(object):
@@ -44,6 +45,12 @@ class TestlinkWeb(object):
         logger.addHandler(handler)
         self.logger = logger
 
+    def __del__(self):
+        """
+        Destructor
+        """
+        self.browser.close()
+
     def login(self, login_user, login_pwd):
         self.browser.get(self.URL)
         self.browser.find_element(By.ID, "login").send_keys(login_user)
@@ -56,6 +63,35 @@ class TestlinkWeb(object):
             return False
         except:
             return True
+
+    def open(self):
+        """
+        Open testlink homepage
+        """
+        self.browser.get(self.URL)
+
+    def open_urgency_page(self, test_plan):
+        """
+        Open the set urgency page
+        """
+        self.open()
+        self.selectTestPlan(test_plan)
+        self.browser.find_element(By.LINK_TEXT, "Set Urgent Tests").click()
+
+    def setCaseUrgency(self, test_plan, urgency, case):
+        """
+        Set the urgency of the tese case
+        """
+        self.getCasePath(case)
+        self.open_urgency_page(test_plan)
+
+        self.browser.switch_to_default_content()
+        self.browser.switch_to_frame("mainframe")
+        self.browser.switch_to_frame("treeframe")
+
+        # get all tree node element
+        tree = Tree(self.browser)
+        tree.expand_case(case)
 
     def openCase(self, case):
         self.browser.get(self.URL)
