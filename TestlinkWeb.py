@@ -2,12 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
+from selenium.common.exceptions import TimeoutException
 import time
 import os
 import logging
 import re
 import string
-from Tree import *
+from Tree import Tree, FolderNotFoundError
+from UrgencyTable import UrgencyTable
 
 
 class TestlinkCase(object):
@@ -64,6 +66,20 @@ class TestlinkWeb(object):
         except:
             return True
 
+    def switch_to_workframe(self):
+        """
+        """
+        self.browser.switch_to_default_content()
+        self.browser.switch_to_frame("mainframe")
+        self.browser.switch_to_frame("workframe")
+
+    def switch_to_treeframe(self):
+        """
+        """
+        self.browser.switch_to_default_content()
+        self.browser.switch_to_frame("mainframe")
+        self.browser.switch_to_frame("treeframe")
+
     def open(self):
         """
         Open testlink homepage
@@ -85,13 +101,28 @@ class TestlinkWeb(object):
         self.getCasePath(case)
         self.open_urgency_page(test_plan)
 
-        self.browser.switch_to_default_content()
-        self.browser.switch_to_frame("mainframe")
-        self.browser.switch_to_frame("treeframe")
+        try:
+            # expand the case
+            self.logger.info("expand " + case.case_id)
+            self.switch_to_treeframe()
+            tree = Tree(self.browser, self.logger)
+            tree.wait_for_present()
+            tree.expand_case(case)
+        except FolderNotFoundError, error:
+            self.logger.error("Error while finding the case: {c} in the tree"
+                              .format(c=case.case_id))
+            self.logger.error(error)
+            return None
+        except TimeoutException, error:
+            self.logger.error("Time out waiting for tree view to present")
+            return None
 
-        # get all tree node element
-        tree = Tree(self.browser)
-        tree.expand_case(case)
+        # set urgency of the case
+        self.switch_to_workframe()
+        table = UrgencyTable(self.browser)
+        row = table.get_case_row(case)
+        row.set_urgency(urgency)
+        table.submit()
 
     def openCase(self, case):
         self.browser.get(self.URL)

@@ -1,45 +1,86 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class Tree(object):
     """
     This class represents the tree view in the testlink ui
     """
-    def __init__(self, browser):
+    def __init__(self, browser, logger):
         """
         """
         super(Tree, self).__init__()
         self.browser = browser
+        self.logger = logger
+        self.collapse_btn = self.browser.find_element(By.NAME, "collapse_tree")
 
     def get_tree_nodes(self):
         return [TreeNode(e) for e in
                 self.browser.find_elements(By.CLASS_NAME, "x-tree-node-el")]
 
-    def expand_case(self, case):
+    def expand_folder(self, folder_name):
         """
-        expand the test case
+        find and click on the icon to expand the folder
         """
         nodes = self.get_tree_nodes()
 
         # expand the test suite of the case
+        flag = False
         for node in nodes:
-            if case.test_suite in node.text:
+            if folder_name in node.text:
+                self.logger.info("Expand suite: " + folder_name)
                 node.expand()
+                flag = True
+
+        if not flag:
+            self.logger.error("CAN NOT FIND FOLDER: " + folder_name)
+            raise FolderNotFoundError, "CAN NOT FIND FOLDER: " + folder_name
+
+    def click_folder(self, folder_name):
+        """
+        find and click on the icon to expand the folder
+        """
+        nodes = self.get_tree_nodes()
+
+        # expand the test suite of the case
+        flag = False
+        for node in nodes:
+            if folder_name in node.text:
+                self.logger.info("Click suite: " + folder_name)
+                node.click()
+                flag = True
+
+        if not flag:
+            raise FolderNotFoundError, "CAN NOT FIND FOLDER: " + folder_name
+
+    def expand_case(self, case):
+        """
+        expand the test case
+        """
+        self.expand_folder(case.test_suite)
 
         # expand the sub folder in the sub path, besides the last one
         # because we dont need to expand it
         for folder_name in case.sub_path[:-1]:
-            nodes = self.get_tree_nodes()
-            for node in nodes:
-                if folder_name in node.text:
-                    node.expand()
+            self.expand_folder(folder_name)
 
         # click on the last folder of the case
-        nodes = self.get_tree_nodes()
-        for node in nodes:
-            if case.sub_path[-1] in node.text:
-                node.click()
+        self.click_folder(case.sub_path[-1])
 
+    def collapse_all_node(self):
+        """
+        collapse the tree by clicking on the button
+        """
+        self.collapse_btn.click()
+
+    def wait_for_present(self, timeout=60):
+        """
+        wait for tree area to present in the browser
+        """
+        wait = WebDriverWait(self.browser, timeout)
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME,
+                                                   "x-tree-ec-icon")))
 
 class TreeNode(object):
     """
@@ -67,3 +108,7 @@ class TreeNode(object):
     @property
     def text(self):
         return self.element.text
+
+
+class FolderNotFoundError(Exception):
+    pass
