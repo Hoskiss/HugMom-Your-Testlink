@@ -10,6 +10,7 @@ import re
 import string
 from Tree import Tree, FolderNotFoundError
 from UrgencyTable import UrgencyTable
+from AddRemoveTable import *
 
 
 class TestlinkCase(object):
@@ -228,13 +229,45 @@ class TestlinkWeb(object):
         self.logger.debug("case.sub_path: " + str(case.sub_path))
         self.logger.debug("*" * 15)
 
+    def move_test_case(self, case, action, test_plan, platform="None"):
+        """
+        Add or remove test case from the plan at the platform
+        """
+        if "add" != action and "remove" != action:
+            print "check your second parameter, should be 'add' or 'remove'"
+            return
+
+        self.getCasePath(case)
+        self.selectTestPlan(test_plan)
+
+        self.browser.find_element(
+            By.LINK_TEXT, "Add / Remove Test Cases").click()
+        time.sleep(2)
+
+        self.switch_to_treeframe()
+        tree = Tree(self.browser, self.logger)
+        tree.expand_case(case)
+
+        self.switch_to_workframe()
+        table = AddRemoveTable(self.browser, self.logger)
+
+        if "add" == action:
+            table.add_testcase_to_platform(testcase=case, platform=platform)
+        else:
+            table.remove_testcase_to_platform(testcase=case, platform=platform)
+
     def moveCaseForPlan(self, case, add_or_remove, which_plan="6.0.2",
                         platform="Integrated platform"):
+        """
+        Add or remove a test case from the testplan with specified platform
+        """
         if "add" != add_or_remove and "remove" != add_or_remove:
             print "check your second parameter, should be 'add' or 'remove'"
             return
+
         if platform not in self.PLATFORM_MAP.keys():
-            print "your specified platform does not support yet, call Hoskiss for help"
+            print ("your specified platform does not support yet,"
+                   " call Hoskiss for help")
             return
 
         self.getCasePath(case)
@@ -244,9 +277,7 @@ class TestlinkWeb(object):
             By.LINK_TEXT, "Add / Remove Test Cases").click()
         time.sleep(2)
 
-        self.browser.switch_to_default_content()
-        self.browser.switch_to_frame("mainframe")
-        self.browser.switch_to_frame("treeframe")
+        self.switch_to_treeframe()
 
         # try filter!
         Select(self.browser.find_element(By.NAME,
@@ -279,7 +310,10 @@ class TestlinkWeb(object):
                         "select_platform")).select_by_visible_text(platform)
             #no cases under this folder
             except:
-                continue
+                print "The platform you specified can not be found: " + platform
+                self.logger.debug("The platform you specified can not be found:"
+                                  + " " + platform)
+                return None
 
             elem = self.waitForElement(By.PARTIAL_LINK_TEXT, case.name)
             if elem is None:
