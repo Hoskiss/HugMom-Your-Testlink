@@ -20,7 +20,7 @@ quick start:
 	python set_test_cases.py --action=4 --platform="Integrated Platform" --testplan=6.0.1 -f <your_case_list>
 
 	To assign test cases to wythe
-	python set_test_cases.py --action=4 --platform="Integrated Platform" --testplan=6.0.1 --assignee=clin -f <your_case_list>
+	python set_test_cases.py --action=5 --platform="Integrated Platform" --testplan=6.0.1 --assignee=clin -f <your_case_list>
 
 
  - Set priority of specified cases

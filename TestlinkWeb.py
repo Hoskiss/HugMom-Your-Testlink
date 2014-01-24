@@ -229,7 +229,7 @@ class TestlinkWeb(object):
         self.logger.debug("case.sub_path: " + str(case.sub_path))
         self.logger.debug("*" * 15)
 
-    def move_test_case(self, case, action, test_plan, platform="None"):
+    def move_test_case(self, case, action, test_plan, platform):
         """
         Add or remove test case from the plan at the platform
         """
@@ -257,6 +257,8 @@ class TestlinkWeb(object):
                 table.remove_testcase_to_platform(testcase=case,
                                                   platform=platform)
         except FolderNotFoundError, err:
+            print ("Error found when trying to {a} case: {c}"
+                    .format(a=action, c=case.case_id))
             print err
 
     def moveCaseForPlan(self, case, add_or_remove, which_plan="6.0.2",
