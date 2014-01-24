@@ -5,14 +5,23 @@ quick start:
 
     Download and put all files and unzipped selenium in same folder
 
-    Open HugMom_Your_Testlink.py and unmark function you wanna do
-    (TestlinkWeb.py is lib, ignore it)
+    Usage:
 
-    Specify cases will be executed in your_cases_list file
-    (check ExampleCasesList.txt)
+    To set urgency of test cases to Low:
+    python set_test_cases.py --action=1 --priority=Low --testplan=6.0.1 -f <your_case_list>
 
-    Run "python ./HugMom_Your_Testlink.py -f <your_cases_list>"
-    ("python ./HugMom_Your_Testlink.py -h" for more information -> TODO)
+    To priority of test cases to High:
+    python set_test_cases.py --action=2 --priority=High -f <your_case_list>
+
+    To add test cases to a testplan and platform
+	python set_test_cases.py --action=3 --platform="Integrated Platform" --testplan=6.0.1 -f <your_case_list>
+
+	To remove test cases from a testplan and platform
+	python set_test_cases.py --action=4 --platform="Integrated Platform" --testplan=6.0.1 -f <your_case_list>
+
+	To assign test cases to wythe
+	python set_test_cases.py --action=4 --platform="Integrated Platform" --testplan=6.0.1 --assignee=clin -f <your_case_list>
+
 
  - Set priority of specified cases
  - Update version of specified case in testplan
