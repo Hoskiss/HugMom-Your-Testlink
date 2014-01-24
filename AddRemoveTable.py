@@ -41,18 +41,21 @@ class AddRemoveTable(object):
         """
         Get the value of the platform
         """
-        select = self.browser.find_element(By.ID, "select_platform")
-        options = select.find_elements(By.TAG_NAME, "option")
+        if platform is None:
+            return "0"
+        else:
+            select = self.browser.find_element(By.ID, "select_platform")
+            options = select.find_elements(By.TAG_NAME, "option")
 
-        for option in options:
-            if platform.strip() == option.get_attribute("label").strip():
-                ret = option.get_attribute("value").strip()
-                self.logger.info("Value of platform {p}: {v}"
-                                 .format(p=platform, v=ret))
-                return ret
+            for option in options:
+                if platform.strip() == option.get_attribute("label").strip():
+                    ret = option.get_attribute("value").strip()
+                    self.logger.info("Value of platform {p}: {v}"
+                                     .format(p=platform, v=ret))
+                    return ret
 
-        raise PlatformNotFoundError, ("The specidied platform '{p}'"
-                                      " cannot be cound".format(p=platform))
+            raise PlatformNotFoundError, ("The specified platform '{p}'"
+                                          " cannot be cound".format(p=platform))
 
     def add_testcase_to_platform(self, testcase, platform):
         """
@@ -66,8 +69,10 @@ class AddRemoveTable(object):
             self.table.find_element(By.NAME, checkbox_name).click()
             self.save_btn.click()
         except NoSuchElementException, err:
-            self.logger.error("Can not find the check box for case: {c}"
+            self.logger.error("Can not find the check box for adding case: {c}"
                               .format(c=testcase.case_id))
+            self.logger.error("It might caused by wrong case id or the case has"
+                              " been added to the testplan or platform")
             self.logger.error("Name of checkbox: {n}".format(n=checkbox_name))
 
     def remove_testcase_to_platform(self, testcase, platform):
@@ -82,10 +87,11 @@ class AddRemoveTable(object):
             self.table.find_element(By.NAME, checkbox_name).click()
             self.save_btn.click()
         except NoSuchElementException, err:
-            self.logger.error("Can not find the check box for case: {c}"
-                              .format(c=testcase.case_id))
+            self.logger.error("Can not find the check box for removing "
+                              "case: {c}".format(c=testcase.case_id))
+            self.logger.error("It might caused by wrong case id or the case has"
+                              " been removed from the testplan or platform")
             self.logger.error("Name of checkbox: {n}".format(n=checkbox_name))
-
 
 
 class PlatformNotFoundError(Exception):

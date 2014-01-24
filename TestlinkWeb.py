@@ -250,11 +250,14 @@ class TestlinkWeb(object):
 
         self.switch_to_workframe()
         table = AddRemoveTable(self.browser, self.logger)
-
-        if "add" == action:
-            table.add_testcase_to_platform(testcase=case, platform=platform)
-        else:
-            table.remove_testcase_to_platform(testcase=case, platform=platform)
+        try:
+            if "add" == action:
+                table.add_testcase_to_platform(testcase=case, platform=platform)
+            else:
+                table.remove_testcase_to_platform(testcase=case,
+                                                  platform=platform)
+        except FolderNotFoundError, err:
+            print err
 
     def moveCaseForPlan(self, case, add_or_remove, which_plan="6.0.2",
                         platform="Integrated platform"):

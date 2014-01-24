@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import re
 
 
 class Tree(object):
@@ -65,8 +66,9 @@ class Tree(object):
         Get the node object by given folder name
         """
         nodes = self.get_tree_nodes()
-        for node in nodes:
-            if node.text.startswith(folder_name):
+        for node in nodes[1:]:
+            node_name = re.search(r"(?P<n>[^\(]*)\(", node.text).group("n")
+            if node_name.strip() == folder_name:
                 self.logger.info("Got node: " + folder_name)
                 return node
 
@@ -87,7 +89,10 @@ class TreeNode(object):
         """
         expand the node
         """
-        self.element.find_element(By.CLASS_NAME, "x-tree-ec-icon").click()
+        icon = self.element.find_element(By.CLASS_NAME, "x-tree-ec-icon")
+        if ("x-tree-elbow-plus" in icon.get_attribute("class") or
+            "x-tree-elbow-end-plus" in icon.get_attribute("class")):
+            icon.click()
 
     def click(self):
         """
