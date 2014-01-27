@@ -115,9 +115,9 @@ def main():
             priority = get_priority(options.priority)
             print "Setting urgency for your test cases"
             for test_case in test_cases:
-                testlink.setCaseUrgency(test_plan=options.testplan,
-                                        case=test_case,
-                                        urgency=priority)
+                testlink.set_case_urgency(test_plan=options.testplan,
+                                          case=test_case,
+                                          urgency=priority)
 
         elif "priority" == ACTION_MAP[options.action]:
             if options.priority is None:
@@ -127,18 +127,18 @@ def main():
             priority = get_priority(options.priority)
             print "Setting priority for your test cases"
             for test_case in test_cases:
-                testlink.setPriority(test_case, priority)
+                testlink.set_case_priority(test_case, priority)
 
         elif "add" == ACTION_MAP[options.action]:
             print "Adding test cases to your testplan: " + options.testplan
             for test_case in test_cases:
-                testlink.move_test_case(test_case, "add", options.testplan,
+                testlink.move_case(test_case, "add", options.testplan,
                                         options.platform)
 
         elif "remove" == ACTION_MAP[options.action]:
             print "Removing test cases from your testplan: " + options.testplan
             for test_case in test_cases:
-                testlink.move_test_case(test_case, "remove", options.testplan,
+                testlink.move_case(test_case, "remove", options.testplan,
                                         options.platform)
 
         elif "assign" == ACTION_MAP[options.action]:
@@ -151,8 +151,8 @@ def main():
                 sys.exit(errno.EINVAL)
 
             for test_case in test_cases:
-                testlink.assignCaseInPlan(test_case, options.assignee,
-                                          options.testplan, options.platform)
+                testlink.assign_case(test_case, options.assignee,
+                                     options.testplan, options.platform)
 
         print "DONE"
     else:

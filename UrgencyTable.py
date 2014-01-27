@@ -11,8 +11,9 @@ class UrgencyTable(object):
         super(UrgencyTable, self).__init__()
         self.browser = browser
         self.table = self.browser.find_element(by, value)
-        self.submit_btn = self.browser.find_element(By.CSS_SELECTOR,
-                      "[value='Set urgency for individual testcases']")
+        self.submit_btn = self.browser.find_element(
+            By.CSS_SELECTOR,
+            "input[value='Set urgency for individual testcases']")
 
     def get_case_row(self, case):
         """
@@ -38,7 +39,6 @@ class TableRow(object):
     """
 
     def __init__(self, element):
-        super(TableRow, self).__init__()
         self.element = element
 
     def set_urgency(self, urgency):

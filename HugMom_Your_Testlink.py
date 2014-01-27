@@ -25,6 +25,7 @@ def main():
     #testcases_id = ["0800", "092", "000"]
     #testcases_id = map(str, range(625, 631))
     # testcases_id.append("863")
+    testcases_id = ["1809"]
     try:
         opts, args = getopt.getopt(sys.argv[1:], "f:h",
                                    ["help", "file="])
@@ -64,8 +65,16 @@ def main():
     testlink_web = TestlinkWeb()
     if testlink_web.login(LOGIN_NAME, LOGIN_PWD):
 
+
         for case_id in testcases_id:
+            # case = TestlinkCase(case_id)
+            # testlink_web.update_case_version(case, which_plan="6.0.1")
+
+            # folder_path = ["CLI commands", "deployment client/server"]
+            # testlink_web.update_case_folder(folder_path, "6.0.1")
+
             case = TestlinkCase(case_id)
+            testlink_web.move_case(case, "remove", "6.0.1", "Integrated platform")
 
             ## Set Priority ("High" or "Medium") Example:
             # priority_key = "High"
@@ -82,8 +91,6 @@ def main():
             # testlink_web.assignCaseInPlan(case, "to_whom", "6.0.2", "Integrated platform")
 
     else:
-        print ("your login name/password seems invalid, "
-               "please check and input again")
         sys.exit(errno.EINVAL)
 
 if __name__ == "__main__":
