@@ -13,8 +13,7 @@ import re
 import string
 from Tree import Tree, FolderNotFoundError
 from UrgencyTable import UrgencyTable
-from AddRemoveTable import *
-from CaseTable import AssignTable, VersionTable
+from CaseTable import AddRemoveTable, AssignTable, VersionTable
 
 import types
 
