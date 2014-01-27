@@ -1,12 +1,10 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 import time
 import re
 
 
-class Tree(object):
+class CaseTree(object):
 
     """
     This class represents the tree view in the testlink ui
@@ -21,8 +19,15 @@ class Tree(object):
         self.suite_collect = Select(self.browser.wait_for_element(
             By.NAME, "filter_toplevel_testsuite"))
 
+    def _wait_for_present(self, timeout=20):
+        """
+        wait for tree area to present in the browser
+        """
+        self.browser.wait_for_element(By.CLASS_NAME, "x-tree-ec-icon",
+                                      timeout)
+
     def get_nodes(self):
-        return [TreeNode(elem) for elem in
+        return [CaseTreeNode(elem) for elem in
                 self.browser.find_elements(By.CLASS_NAME, "x-tree-node-el")]
 
     def get_folder_node(self, folder_name):
@@ -59,6 +64,7 @@ class Tree(object):
         """
         expand the test case
         """
+        self._wait_for_present()
         self.expand_folder(case.test_suite)
         time.sleep(0.5)
         # expand the sub folder in the sub path, besides the last one
@@ -74,6 +80,7 @@ class Tree(object):
         """
         expand the test folder path
         """
+        self._wait_for_present()
         # expand the sub folder in the folder_path, besides the last one
         # because we dont need to expand it
         for folder_name in folder_path[:-1]:
@@ -98,7 +105,7 @@ class Tree(object):
         time.sleep(2)
 
 
-class TreeNode(object):
+class CaseTreeNode(object):
 
     """
     This class represents the tree node in testlink ui

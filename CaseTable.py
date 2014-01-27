@@ -49,8 +49,8 @@ class AddRemoveTable(BaseTable):
                 act=action, c=case.case_id)
             self.logger.error("Can not find the check box for {act} case: {c}"
                               .format(act=action, c=case.case_id))
-            self.logger.error("It might caused by wrong case id or the case has"
-                              " been added to the testplan or platform")
+            self.logger.error("It might caused by wrong case id or the case "
+                              "has been added to the testplan or platform")
             self.logger.error("Name of checkbox: {n}".format(n=checkbox_name))
 
 
@@ -118,6 +118,39 @@ class AssignTable(BaseTable):
                 tester=tester)
             self.logger.debug("check your tester: {tester} if exists!".format(
                 tester=tester))
+
+
+class UrgencyTable(BaseTable):
+
+    """
+    This class represents the table which set urgency of test cases
+    """
+
+    def __init__(self, browser, logger):
+        """
+        """
+        super(UrgencyTable, self).__init__(browser, logger)
+        self.table = self.browser.find_element(
+            By.CLASS_NAME, "simple_tableruler")
+        self.save_btn = self.browser.find_element(
+            By.CSS_SELECTOR,
+            "input[value='Set urgency for individual testcases']")
+        self.URGENCY_MAP = {"High": u"3", "Medium": u"2", "Low": u"1"}
+
+    def set_case_urgency(self, case, urgency):
+        case_row = self.get_case_row(case)
+        radios = case_row.find_elements(By.TAG_NAME, "input")
+        for radio in radios:
+            if radio.get_attribute("value") == self.URGENCY_MAP[urgency]:
+                radio.click()
+                break
+
+        self.save()
+        time.sleep(2)
+        print "set < {full_n} > urgency to {urcy} !".format(
+            full_n=case.full_name, urcy=urgency)
+        self.logger.info("set < {full_n} > urgency to {urcy} !".format(
+            full_n=case.full_name, urcy=urgency))
 
 
 class VersionTable(BaseTable):

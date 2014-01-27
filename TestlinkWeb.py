@@ -11,11 +11,11 @@ import os
 import logging
 import re
 import string
-from Tree import Tree, FolderNotFoundError
-from UrgencyTable import UrgencyTable
-from CaseTable import AddRemoveTable, AssignTable, VersionTable
-
 import types
+from CaseTree import CaseTree, FolderNotFoundError
+from CaseTable import AddRemoveTable, AssignTable
+from CaseTable import UrgencyTable, VersionTable
+
 
 class TestlinkCase(object):
 
@@ -38,6 +38,7 @@ def wait_for_element(self, by, value, timeout=20):
     wait.until(EC.presence_of_element_located((by, value)))
     return self.find_element(by, value)
 
+
 class TestlinkWeb(object):
 
     """
@@ -51,9 +52,7 @@ class TestlinkWeb(object):
 
     def __init__(self, browser=None):
         self.URL = "http://testlink.splunk.com/index.php"
-        self.PRIORITY_MAP = {"High": "3",
-                             "Medium": "2",
-                             "Low": "1"}
+        self.PRIORITY_MAP = {"High": "3", "Medium": "2", "Low": "1"}
         self.browser = browser or webdriver.Firefox()
         self.browser.wait_for_element = types.MethodType(wait_for_element,
                                                          self.browser)
@@ -76,7 +75,7 @@ class TestlinkWeb(object):
         """
         Destructor
         """
-        #self.browser.close()
+        self.browser.close()
 
     def open(self):
         """
@@ -153,7 +152,7 @@ class TestlinkWeb(object):
         self.browser.switch_to_default_content()
         self.browser.switch_to_frame("mainframe")
         Select(self.browser.find_element(
-            By.NAME,"testplan")).select_by_visible_text(
+            By.NAME, "testplan")).select_by_visible_text(
             "{which_plan} Test Plan".format(which_plan=which_plan))
         time.sleep(2)
         print "Deal with cases in {plan}".format(plan=which_plan)
@@ -231,8 +230,7 @@ class TestlinkWeb(object):
             # expand the case
             self.logger.info("expand " + case.case_id)
             self.switch_to_treeframe()
-            tree = Tree(self.browser, self.logger)
-            tree.wait_for_present()
+            tree = CaseTree(self.browser, self.logger)
             tree.expand_case(case)
         except FolderNotFoundError as error:
             self.logger.error("Error while finding the case: {c} in the tree"
@@ -245,10 +243,8 @@ class TestlinkWeb(object):
 
         # set urgency of the case
         self.switch_to_workframe()
-        table = UrgencyTable(self.browser)
-        row = table.get_case_row(case)
-        row.set_urgency(urgency)
-        table.submit()
+        table = UrgencyTable(self.browser, self.logger)
+        table.set_case_urgency(case, urgency)
 
     def move_case(self, case, action, test_plan, platform):
         """
@@ -266,7 +262,7 @@ class TestlinkWeb(object):
         time.sleep(2)
 
         self.switch_to_treeframe()
-        tree = Tree(self.browser, self.logger)
+        tree = CaseTree(self.browser, self.logger)
         tree.expand_case(case)
 
         self.switch_to_workframe()
@@ -290,7 +286,7 @@ class TestlinkWeb(object):
         time.sleep(2)
 
         self.switch_to_treeframe()
-        tree = Tree(self.browser, self.logger)
+        tree = CaseTree(self.browser, self.logger)
         tree.expand_case(case)
 
         self.switch_to_workframe()
@@ -304,7 +300,7 @@ class TestlinkWeb(object):
         time.sleep(2)
 
         self.switch_to_treeframe()
-        tree = Tree(self.browser, self.logger)
+        tree = CaseTree(self.browser, self.logger)
         tree.expand_folder_path(case_folder_path)
 
         self.switch_to_workframe()
@@ -321,11 +317,9 @@ class TestlinkWeb(object):
         time.sleep(2)
 
         self.switch_to_treeframe()
-        tree = Tree(self.browser, self.logger)
+        tree = CaseTree(self.browser, self.logger)
         tree.expand_case(case)
 
         self.switch_to_workframe()
         table = AssignTable(self.browser, self.logger)
         table.assign_case_to_tester(case, tester, platform)
-
-
