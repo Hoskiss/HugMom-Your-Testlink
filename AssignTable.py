@@ -47,9 +47,15 @@ class AssignTable(BaseTable):
         tooltip = self._get_case_tooltip(case)
         p_value = self._get_platform_value(platform)
 
-        elem = self.wait_for_element(By.NAME,
-                                     "tester_for_tcid[{tt}][{p_v}]".format(
-                                         tt=tooltip, p_v=p_value))
+        try:
+            elem = self.browser.wait_for_element(
+                By.NAME, "tester_for_tcid[{tt}][{p_v}]".format(
+                tt=tooltip, p_v=p_value))
+        except:
+            print "check your {platf} for {c} if exists!".format(
+                platf=platform, c=case.full_name)
+            self.logger.debug("check your {platf} for {c} if exists!".format(
+                platf=platform, c=case.full_name))
 
         try:
             Select(elem).select_by_visible_text(tester)

@@ -1,5 +1,5 @@
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
+#from selenium.common.exceptions import NoSuchElementException
 from BaseTable import BaseTable
 
 
@@ -46,9 +46,3 @@ class AddRemoveTable(BaseTable):
                               " been added to the testplan or platform")
             self.logger.error("Name of checkbox: {n}".format(n=checkbox_name))
 
-class PlatformNotFoundError(Exception):
-    pass
-
-
-class TestcaseNotFoundError(Exception):
-    pass

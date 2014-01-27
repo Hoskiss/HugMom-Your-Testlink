@@ -14,7 +14,10 @@ from UrgencyTable import UrgencyTable
 from AddRemoveTable import *
 from VersionTable import VersionTable
 from AssignTable import AssignTable
-from Util import wait_for_element
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import types
 
 class TestlinkCase(object):
 
@@ -28,11 +31,21 @@ class TestlinkCase(object):
         self.logger.info("Deal with {my_id}:".format(my_id=self.case_id))
 
 
+# Add wait method for TestlinkWeb.browser
+def wait_for_element(self, by, value, timeout=20):
+    """
+    wait for element to present in the browser
+    """
+    wait = WebDriverWait(self, timeout)
+    wait.until(EC.presence_of_element_located((by, value)))
+    return self.find_element(by, value)
+
 class TestlinkWeb(object):
 
     """
-    Version: 0.4 / 2014.01.21
+    Version: 0.5 / 2014.01.27
         - set case priority
+        - set case urgency
         - add/remove case for testplan
         - update case version in testplan
         - assign case of one platform to tester in testplan
@@ -41,8 +54,11 @@ class TestlinkWeb(object):
     def __init__(self, browser=None):
         self.URL = "http://testlink.splunk.com/index.php"
         self.PRIORITY_MAP = {"High": "3",
-                             "Medium": "2"}
+                             "Medium": "2",
+                             "Low": "1"}
         self.browser = browser or webdriver.Firefox()
+        self.browser.wait_for_element = types.MethodType(wait_for_element,
+                                                         self.browser)
 
         # logging
         file_name = os.path.basename(__file__).split(".")[0]
@@ -175,10 +191,10 @@ class TestlinkWeb(object):
         except:
             # need create new version
             try:
-                wait_for_element(self.browser, By.NAME,
-                                 "do_create_new_version").click()
-                wait_for_element(self.browser, By.NAME,
-                                 "edit_tc").click()
+                self.browser.wait_for_element(
+                    By.NAME, "do_create_new_version").click()
+                self.browser.wait_for_element(
+                    By.NAME, "edit_tc").click()
 
                 time.sleep(2)
             # can not edit case, possibly case does not exist

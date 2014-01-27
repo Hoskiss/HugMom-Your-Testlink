@@ -1,6 +1,4 @@
 from selenium.webdriver.common.by import By
-#from selenium.common.exceptions import NoSuchElementExce
-from Util import wait_for_element
 import re
 
 class BaseTable(object):
@@ -17,9 +15,6 @@ class BaseTable(object):
         self.logger = logger
         self.table = None
         self.save_btn = None
-
-    def wait_for_element(self, by, value):
-        return wait_for_element(self.browser, by, value)
 
     def get_case_grid(self, case, by=By.TAG_NAME, value="td"):
         """
@@ -91,7 +86,7 @@ class BaseTable(object):
         if platform is None:
             return "0"
         else:
-            select = self.browser.find_element(By.ID, "select_platform")
+            select = self.browser.wait_for_element(By.ID, "select_platform")
             options = select.find_elements(By.TAG_NAME, "option")
 
             for option in options:
