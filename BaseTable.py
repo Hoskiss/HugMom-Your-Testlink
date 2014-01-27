@@ -60,8 +60,8 @@ class BaseTable(object):
         if hasattr(case, 'tooltip'):
             return case.tooltip
 
-        elem = wait_for_element(self.browser,
-                                By.PARTIAL_LINK_TEXT, case.name)
+        elem = self.browser.wait_for_element(By.PARTIAL_LINK_TEXT,
+                                             case.name)
         if elem is None:
             print "Can not find tooltip for case: {c}!".format(
                 c=case.case_id)
