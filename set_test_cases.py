@@ -1,6 +1,7 @@
 from TestlinkWeb import TestlinkCase
 from TestlinkWeb import TestlinkWeb
 import errno
+# TODO: argparse seems better
 from optparse import OptionParser
 import string
 import re
@@ -8,17 +9,18 @@ import getpass
 import sys
 from collections import OrderedDict
 
-d = {"1": "urgency", "2": "priority", "3": "add", "4": "remove", "5": "assign"}
-ACTION_MAP = OrderedDict(sorted(d.items(), key=lambda t:t[0]))
+act = {"1": "urgency", "2": "priority", "3":
+       "add", "4": "remove", "5": "assign"}
+ACTION_MAP = OrderedDict(sorted(act.items(), key=lambda t: t[0]))
 
-ACTION_HELP_STRING =(
-'''
+ACTION_HELP_STRING = '''
  1: set urgency for testcases
  2: set priority for testcases
  3: add testcases to a testplan
  4: remove testcases from a testplan
  5: assign testcases to somebody
- ''')
+ '''
+
 
 def get_login_credential():
     """
@@ -28,6 +30,7 @@ def get_login_credential():
     LOGIN_PWD = getpass.getpass("Please enter your testlink login password: ")
 
     return (LOGIN_NAME, LOGIN_PWD)
+
 
 def get_testcases(file_name):
     """
@@ -49,6 +52,7 @@ def get_testcases(file_name):
         sys.exit(errno.EINVAL)
 
     return [TestlinkCase(tid) for tid in testcases_id]
+
 
 def parse_options():
     """
@@ -72,6 +76,7 @@ def parse_options():
     (options, args) = parser.parse_args()
     return options
 
+
 def get_priority(priority):
     """
     translate user's priority to the format tha TestlinkWeb can recognize
@@ -85,6 +90,7 @@ def get_priority(priority):
         print "{p} is not supported for priority".format(p=priority)
         sys.exit(errno.EINVAL)
 
+
 def main():
     """
     main process
@@ -95,7 +101,7 @@ def main():
     if not options.action in ACTION_MAP.keys():
         print ("{o} is not implemented, please select one of {k}"
                " as action parameter".format(o=options.action,
-                                            k=str(ACTION_MAP.keys())))
+                                             k=str(ACTION_MAP.keys())))
         sys.exit(errno.EINVAL)
 
     test_cases = get_testcases(options.file)
@@ -133,13 +139,13 @@ def main():
             print "Adding test cases to your testplan: " + options.testplan
             for test_case in test_cases:
                 testlink.move_case(test_case, "add", options.testplan,
-                                        options.platform)
+                                   options.platform)
 
         elif "remove" == ACTION_MAP[options.action]:
             print "Removing test cases from your testplan: " + options.testplan
             for test_case in test_cases:
                 testlink.move_case(test_case, "remove", options.testplan,
-                                        options.platform)
+                                   options.platform)
 
         elif "assign" == ACTION_MAP[options.action]:
             if options.assignee is None:
