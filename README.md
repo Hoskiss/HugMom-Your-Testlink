@@ -6,25 +6,38 @@ quick start:
     Download and put all files and unzipped selenium in same folder
 
     Usage:
+    Helper text:  python Set_Cases_Actions.py -h
 
-    To set urgency of test cases to Low:
-    python set_test_cases.py --action=1 --priority=Low --testplan=6.0.1 -f <your_case_list>
+    Recommend:  python Set_Cases_Actions.py <your_case_list.txt> -i
 
-    To priority of test cases to High:
-    python set_test_cases.py --action=2 --priority=High -f <your_case_list>
+    (valid format for optional arguments: --<args>=<value>/--<args> <value>)
+    (multiple actions (in space format) are acceptable: --action 2 3 / -a 2 3)
 
-    To add test cases to a testplan and platform
-	python set_test_cases.py --action=3 --platform="Integrated Platform" --testplan=6.0.1 -f <your_case_list>
+    To set urgency of testcases to Low in a testplan:
+    python Set_Cases_Actions.py <your_case_list.txt> --action=1 --priority=Low --testplan=6.0.1
 
-	To remove test cases from a testplan and platform
-	python set_test_cases.py --action=4 --platform="Integrated Platform" --testplan=6.0.1 -f <your_case_list>
+    To set priority of testcases to High:
+    python Set_Cases_Actions.py <your_case_list.txt> --action=2 --priority=High
 
-	To assign test cases to wythe
-	python set_test_cases.py --action=5 --platform="Integrated Platform" --testplan=6.0.1 --assignee=clin -f <your_case_list>
+    To update version of testcases in a testplan:
+    python Set_Cases_Actions.py <your_case_list.txt> --action=3 --testplan=6.0.1
+
+    To add testcases to a testplan on a platform:
+    python Set_Cases_Actions.py <your_case_list.txt> --action=4 --testplan=6.0.1
+    --platform="Integrated Platform"/''/"Firefox + Linux"
+
+    To remove testcases from a testplan on a platform:
+    python Set_Cases_Actions.py <your_case_list.txt> --action=5 --testplan=6.0.1
+    --platform="Integrated Platform"/''/"Firefox + Linux"
+
+    To assign testcases to a tester:
+    python Set_Cases_Actions.py <your_case_list.txt> --action=6 --testplan=6.0.1
+    --platform="Integrated Platform"/''/"Firefox + Linux" --assignee=clin
 
 
- - Set priority of specified cases
- - Update version of specified case in testplan
- - Add/Remove specified case from testplan
- - Assign specified case of specified platform to tester in testplan
- - You can assign your specified cases in your file with comment
+ - Set urgency of cases (plan-based)
+ - Set priority of cases (case-based)
+ - Update version of cases in testplan
+ - Add/Remove cases for a testplan on a platform
+ - Assign cases on a platform to tester in a testplan
+ - You need to specify your cases id in a file, may with comment

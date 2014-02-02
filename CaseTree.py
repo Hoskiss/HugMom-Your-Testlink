@@ -15,7 +15,8 @@ class CaseTree(object):
         """
         self.browser = browser
         self.logger = logger
-        self.collapse_btn = self.browser.wait_for_element(By.NAME, "collapse_tree")
+        self.collapse_btn = self.browser.wait_for_element(
+            By.NAME, "collapse_tree")
         self.suite_collect = Select(self.browser.wait_for_element(
             By.NAME, "filter_toplevel_testsuite"))
 

@@ -16,7 +16,7 @@ class BaseTable(object):
         self.table = None
         self.save_btn = None
 
-    def get_case_grid(self, case, by=By.TAG_NAME, value="td"):
+    def _get_case_grid(self, case, by=By.TAG_NAME, value="td"):
         """
         return the grid which has the case id
         """
@@ -28,7 +28,7 @@ class BaseTable(object):
         raise TestcaseNotFoundError("Cannot find testcase: {t}"
                                     .format(t=case.case_id))
 
-    def get_case_row(self, case, by=By.TAG_NAME, value="tr"):
+    def _get_case_row(self, case, by=By.TAG_NAME, value="tr"):
         """
         return the row which has the case id
         """
@@ -46,7 +46,7 @@ class BaseTable(object):
     #     Get the tooltip of the given test case_id
     #     tooltip is for getting the checkbox of the testcase
     #     """
-    #     row = self.get_case_row(case)
+    #     row = self._get_case_row(case)
     #     tt = row.get_attribute("id").replace("tooltip-", "")
     #     self.logger.debug("Tooltip for case {c}: {t}"
     #                      .format(c=case.case_id, t=tt))

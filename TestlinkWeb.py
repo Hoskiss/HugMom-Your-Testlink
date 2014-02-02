@@ -42,12 +42,12 @@ def wait_for_element(self, by, value, timeout=20):
 class TestlinkWeb(object):
 
     """
-    Version: 0.5 / 2014.01.27
-        - set case priority
-        - set case urgency
-        - add/remove case for testplan
-        - update case version in testplan
-        - assign case of one platform to tester in testplan
+    Version: 0.6 / 2014.02.02
+    - Set urgency of cases (plan-based)
+    - Set priority of cases (case-based)
+    - Update version of cases in testplan
+    - Add/Remove cases for a testplan on a platform
+    - Assign cases on a platform to tester in a testplan
     """
 
     def __init__(self, browser=None):
@@ -215,7 +215,7 @@ class TestlinkWeb(object):
             print "** is already {p_key}!".format(p_key=priority)
             self.logger.info("** is already {p_key}!".format(p_key=priority))
 
-    def set_case_urgency(self, test_plan, urgency, case):
+    def set_case_urgency(self, case, test_plan, urgency):
         """
         Set the urgency of the tese case
         """

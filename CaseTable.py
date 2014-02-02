@@ -37,7 +37,8 @@ class AddRemoveTable(BaseTable):
 
         try:
             self.table.find_element(By.NAME, checkbox_name).click()
-            self.save_btn.click()
+            self.save()
+            time.sleep(1)
 
             print "{act} < {full_name} > for {platform}!".format(
                 act=action, full_name=case.full_name, platform=platform)
@@ -71,8 +72,7 @@ class AssignTable(BaseTable):
         if hasattr(case, 'tooltip'):
             return case.tooltip
 
-        grid = self.get_case_grid(case)
-
+        grid = self._get_case_grid(case)
         try:
             #row = grid.find_element(By.XPATH, "..")
             row = grid.find_element(By.XPATH, "parent::tr")
@@ -109,6 +109,7 @@ class AssignTable(BaseTable):
         try:
             Select(elem).select_by_visible_text(tester)
             self.save()
+            time.sleep(1)
             print "Assign < {full_name} > to {tester} !".format(
                 full_name=case.full_name, tester=tester)
             self.logger.info("Assign < {full_name} > to {tester} !".format(
@@ -138,19 +139,21 @@ class UrgencyTable(BaseTable):
         self.URGENCY_MAP = {"High": u"3", "Medium": u"2", "Low": u"1"}
 
     def set_case_urgency(self, case, urgency):
-        case_row = self.get_case_row(case)
+        case_row = self._get_case_row(case)
         radios = case_row.find_elements(By.TAG_NAME, "input")
         for radio in radios:
             if radio.get_attribute("value") == self.URGENCY_MAP[urgency]:
                 radio.click()
+                print "set < {full_n} > urgency to {urcy} !".format(
+                    full_n=case.full_name, urcy=urgency)
+                self.logger.info("set < {full_n} > urgency to {urcy} !".format(
+                    full_n=case.full_name, urcy=urgency))
                 break
 
         self.save()
-        time.sleep(2)
-        print "set < {full_n} > urgency to {urcy} !".format(
-            full_n=case.full_name, urcy=urgency)
-        self.logger.info("set < {full_n} > urgency to {urcy} !".format(
-            full_n=case.full_name, urcy=urgency))
+        time.sleep(1)
+        print "set {p_key} urgency!".format(p_key=priority)
+        self.logger.info("set {p_key} urgency!".format(p_key=priority))
 
 
 class VersionTable(BaseTable):
@@ -173,7 +176,7 @@ class VersionTable(BaseTable):
         self.browser.find_element(By.ID, update_checkbox_id).click()
 
         self.save()
-        time.sleep(2)
+        time.sleep(1)
         print "update < {full_n} > !".format(full_n=case.full_name)
         self.logger.info("update < {full_n} > !".format(full_n=case.full_name))
 
@@ -181,7 +184,7 @@ class VersionTable(BaseTable):
         self.browser.find_element(By.CSS_SELECTOR,
                                   "div.workBack h3.testlink img").click()
         self.save()
-        time.sleep(2)
+        time.sleep(1)
         print "update folder < {f_path} > !".format(
             f_path="||".join(folder_path))
         self.logger.info("update folder < {f_path} > !"
