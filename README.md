@@ -8,10 +8,11 @@ quick start:
     Usage:
     Helper text:  python Set_Cases_Actions.py -h
 
-    Recommend:  python Set_Cases_Actions.py <your_case_list.txt> -i
+    [valid format for optional arguments: --<args>=<value>/--<args> <value>]
+    [multiple actions (in space format) are acceptable: --action 2 3 / -a 2 3]
 
-    (valid format for optional arguments: --<args>=<value>/--<args> <value>)
-    (multiple actions (in space format) are acceptable: --action 2 3 / -a 2 3)
+    Interactive arguments (Recommend):
+    python Set_Cases_Actions.py <your_case_list.txt> -i
 
     To set urgency of testcases to Low in a testplan:
     python Set_Cases_Actions.py <your_case_list.txt> --action=1 --priority=Low --testplan=6.0.1
