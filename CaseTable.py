@@ -152,8 +152,8 @@ class UrgencyTable(BaseTable):
 
         self.save()
         time.sleep(1)
-        print "set {p_key} urgency!".format(p_key=priority)
-        self.logger.info("set {p_key} urgency!".format(p_key=priority))
+        print "set {p_key} urgency!".format(p_key=urgency)
+        self.logger.info("set {p_key} urgency!".format(p_key=urgency))
 
 
 class VersionTable(BaseTable):

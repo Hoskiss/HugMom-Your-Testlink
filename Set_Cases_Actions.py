@@ -204,7 +204,7 @@ def get_login_credential():
     LOGIN_NAME = raw_input("Please enter your testlink login name: ")
     LOGIN_PWD = getpass.getpass("Please enter your testlink login password: ")
 
-    return (LOGIN_NAME, LOGIN_PWD)
+    return {"name": LOGIN_NAME, "pwd": LOGIN_PWD}
 
 def classify_priority(priority):
     if priority in ["l", "L", "low", "Low"]:
@@ -226,18 +226,19 @@ def main():
     testcases = get_testcases(args.file)
     #print args
 
+    credential = get_login_credential()
     testlink = TestlinkWeb()
-    if not testlink.login(get_login_credential()):
+    if not testlink.login(credential["name"], credential["pwd"]):
         print ("your login name/password seems invalid, "
                "please check and input again")
         sys.exit(errno.EINVAL)
 
-    for case in test_cases:
+    for case in testcases:
         for act_idx in args.action:
             if "urgency" == ACTION_MAP[str(act_idx)]:
-                testlink.set_case_urgency(case=case,
-                                          test_plan=args.testplan,
-                                          urgency=args.priority)
+                testlink.set_case_urgency(case,
+                                          args.testplan,
+                                          classify_priority(args.priority))
 
             elif "priority" == ACTION_MAP[str(act_idx)]:
                 testlink.set_case_priority(case,
