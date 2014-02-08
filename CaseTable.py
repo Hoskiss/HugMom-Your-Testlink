@@ -1,9 +1,9 @@
+import re
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from selenium.common.exceptions import NoSuchElementException
 from BaseTable import BaseTable
-import time
-import re
 
 
 class AddRemoveTable(BaseTable):
@@ -171,6 +171,13 @@ class VersionTable(BaseTable):
 
     def update_case_version(self, case):
         tooltip = self._get_case_tooltip(case)
+        if tooltip is None:
+            print ("update case failed, check if < {full_n} > "
+                   "in the test plan!".format(full_n=case.full_name))
+            self.logger.error("update case failed, check if < {full_n} > in "
+                              "the test plan!".format(full_n=case.full_name))
+            return
+
         update_checkbox_id = "achecked_tc{count}".format(
             count=tooltip)
         self.browser.find_element(By.ID, update_checkbox_id).click()

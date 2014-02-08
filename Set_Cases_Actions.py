@@ -1,12 +1,12 @@
-from TestlinkWeb import TestlinkCase
-from TestlinkWeb import TestlinkWeb
+import re
+import sys
 import errno
 import string
-import re
 import getpass
-import sys
 import argparse
-from argparse import RawTextHelpFormatter
+
+from TestlinkWeb import TestlinkCase
+from TestlinkWeb import TestlinkWeb
 
 ACTION_MAP = {"1": "urgency", "2": "priority",
               "3": "update", "4": "add",
@@ -34,7 +34,7 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser(
         description="Run webdriver helper to actions on testlink cases",
-        formatter_class=RawTextHelpFormatter)
+        formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument("file", type=argparse.FileType('r'),
                         help="the input file which lists testcase ids \n" +
@@ -135,6 +135,11 @@ def check_interactive_args(args):
                     args.assignee = raw_input("Please enter assignee who take cases, ex: hlin\n")
 
 def check_valid_args(args):
+    if args.action is None:
+        print ("at least assign action with argument -a, --action or -i, --interactive\n"
+               "use argument -h for uasage help text")
+        sys.exit(errno.EINVAL)
+
     for act_idx in args.action:
         if "urgency" == ACTION_MAP[act_idx]:
             if args.testplan is not None and args.priority is not None:
@@ -201,10 +206,10 @@ def get_login_credential():
     """
     Get login credential from stdin
     """
-    LOGIN_NAME = raw_input("Please enter your testlink login name: ")
-    LOGIN_PWD = getpass.getpass("Please enter your testlink login password: ")
+    login_name = raw_input("Please enter your testlink login name: ")
+    login_pwd = getpass.getpass("Please enter your testlink login password: ")
 
-    return {"name": LOGIN_NAME, "pwd": LOGIN_PWD}
+    return (login_name, login_pwd)
 
 def classify_priority(priority):
     if priority in ["l", "L", "low", "Low"]:
@@ -226,9 +231,9 @@ def main():
     testcases = get_testcases(args.file)
     #print args
 
-    credential = get_login_credential()
+    (usr, pwd) = get_login_credential()
     testlink = TestlinkWeb()
-    if not testlink.login(credential["name"], credential["pwd"]):
+    if not testlink.login(usr, pwd):
         print ("your login name/password seems invalid, "
                "please check and input again")
         sys.exit(errno.EINVAL)

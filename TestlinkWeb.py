@@ -1,3 +1,10 @@
+import os
+import re
+import time
+import types
+import string
+import logging
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -6,12 +13,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-import time
-import os
-import logging
-import re
-import string
-import types
 from CaseTree import CaseTree, FolderNotFoundError
 from CaseTable import AddRemoveTable, AssignTable
 from CaseTable import UrgencyTable, VersionTable
@@ -34,9 +35,12 @@ def wait_for_element(self, by, value, timeout=20):
     """
     wait for element to present in the browser
     """
-    wait = WebDriverWait(self, timeout)
-    wait.until(EC.presence_of_element_located((by, value)))
-    return self.find_element(by, value)
+    try:
+        wait = WebDriverWait(self, timeout)
+        wait.until(EC.presence_of_element_located((by, value)))
+        return self.find_element(by, value)
+    except TimeoutException:
+        return None
 
 
 class TestlinkWeb(object):

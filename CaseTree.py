@@ -1,7 +1,7 @@
+import re
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
-import time
-import re
 
 
 class CaseTree(object):

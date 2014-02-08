@@ -1,7 +1,9 @@
-from selenium.webdriver.common.by import By
 import re
+from selenium.webdriver.common.by import By
+
 
 class BaseTable(object):
+
     """
     This class represents the base table
     table implemented for now:
@@ -9,6 +11,7 @@ class BaseTable(object):
         - AddRemoveTable
         - VersionTable
     """
+
     def __init__(self, browser, logger):
 
         self.browser = browser
@@ -67,6 +70,7 @@ class BaseTable(object):
                 c=case.case_id)
             self.logger.debug("Can not find tooltip for case: {c}!"
                               .format(c=case.case_id))
+            return None
         else:
             tooltip = elem.get_attribute("href")
             tooltip = re.search("\d+", tooltip).group()
