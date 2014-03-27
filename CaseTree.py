@@ -26,10 +26,15 @@ class CaseTree(object):
         """
         self.browser.wait_for_element(By.CLASS_NAME, "x-tree-ec-icon",
                                       timeout)
+        time.sleep(1)
 
     def get_nodes(self):
         return [CaseTreeNode(elem) for elem in
                 self.browser.find_elements(By.CLASS_NAME, "x-tree-node-el")]
+
+    def get_children_nodes(self, parent_node):
+        return [CaseTreeNode(elem) for elem in
+                parent_node.element.find_elements(By.CLASS_NAME, "x-tree-node-el")]
 
     def get_folder_node(self, folder_name):
         """
@@ -49,11 +54,27 @@ class CaseTree(object):
 
         raise FolderNotFoundError("CAN NOT FIND FOLDER: " + folder_name)
 
+    def get_case_node(self, case_name, parent_node=None):
+        """
+        Get the node object by given case name
+        """
+        # nodes = self.get_nodes() if parent_node is None else self.get_children_nodes(parent_node)
+        nodes = self.get_nodes()
+
+        for node in nodes[1:]:
+            if case_name in node.text:
+                self.logger.info("Got case node: " + case_name)
+                return node
+
+        raise CaseNotFoundError("CAN NOT FIND CASE: " + case_name)
+
     def expand_folder(self, folder_name):
         """
         find and click on the icon to expand the folder
         """
-        self.get_folder_node(folder_name).expand()
+        folder_node = self.get_folder_node(folder_name)
+        folder_node.expand()
+        return folder_node
 
     def click_folder(self, folder_name):
         """
@@ -61,21 +82,33 @@ class CaseTree(object):
         """
         self.get_folder_node(folder_name).click()
 
-    def expand_case(self, case):
+    def click_case(self, case_name, parent_node=None):
+        """
+        click on case
+        """
+        self.get_case_node(case_name, parent_node).click()
+
+    def expand_case(self, case, is_case_select=False):
         """
         expand the test case
         """
         self._wait_for_present()
         self.expand_folder(case.test_suite)
-        time.sleep(0.5)
+        time.sleep(1)
         # expand the sub folder in the sub path, besides the last one
         # because we dont need to expand it
         for folder_name in case.sub_path[:-1]:
             self.expand_folder(folder_name)
-            time.sleep(0.5)
-        # click on the last folder of the case
-        self.click_folder(case.sub_path[-1])
-        time.sleep(0.5)
+            time.sleep(1)
+
+        if is_case_select:
+            parent_folder = self.expand_folder(case.sub_path[-1])
+            time.sleep(1)
+            self.click_case(case.full_name)
+
+        else:
+            self.click_folder(case.sub_path[-1])
+        time.sleep(1)
 
     def expand_folder_path(self, folder_path):
         """
@@ -86,10 +119,10 @@ class CaseTree(object):
         # because we dont need to expand it
         for folder_name in folder_path[:-1]:
             self.expand_folder(folder_name)
-            time.sleep(0.5)
+            time.sleep(1)
         # click on the last folder of the case
         self.click_folder(folder_path[-1])
-        time.sleep(0.5)
+        time.sleep(1)
 
     def collapse_all_node(self):
         """
@@ -140,3 +173,7 @@ class CaseTreeNode(object):
 
 class FolderNotFoundError(Exception):
     pass
+
+class CaseNotFoundError(Exception):
+    pass
+

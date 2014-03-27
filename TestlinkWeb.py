@@ -16,6 +16,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from CaseTree import CaseTree, FolderNotFoundError
 from CaseTable import AddRemoveTable, AssignTable
 from CaseTable import UrgencyTable, VersionTable
+from SelectManager import KeywordManager
 
 
 class TestlinkCase(object):
@@ -86,6 +87,17 @@ class TestlinkWeb(object):
         Open testlink homepage
         """
         self.browser.get(self.URL)
+        time.sleep(2)
+
+    def select_project(self, text="Splunk"):
+        # Select(self.browser.wait_for_element(
+        #     By.NAME, "testproject")).select_by_visible_text(text)
+        # Select(self.browser.wait_for_element(
+        #     By.NAME, "testproject")).select_by_value("1")
+        Select(self.browser.find_element(
+            By.NAME, "testproject")).select_by_visible_text(text)
+        time.sleep(2)
+
 
     def login(self, login_user, login_pwd):
         self.open()
@@ -104,10 +116,8 @@ class TestlinkWeb(object):
 
     def _open_case(self, case):
         self.open()
-        time.sleep(2)
 
-        self.browser.switch_to_default_content()
-        self.browser.switch_to_frame("titlebar")
+        self.switch_to_titleframe()
         input_id = self.browser.find_element(By.NAME, "targetTestCase")
         input_id.clear()
         input_id.send_keys("splunk-" + case.case_id + Keys.RETURN)
@@ -115,10 +125,9 @@ class TestlinkWeb(object):
 
     def _get_case_path(self, case):
         self._open_case(case)
-        self.browser.switch_to_default_content()
-        self.browser.switch_to_frame("mainframe")
+        self.switch_to_mainframe()
 
-        get_path = self.browser.find_element(
+        get_path = self.browser.wait_for_element(
             By.CSS_SELECTOR, "div.workBack h2").text
         self.logger.debug("get_path: " + get_path)
         # path rule: first part is global "splunk"
@@ -144,17 +153,12 @@ class TestlinkWeb(object):
 
     def select_test_plan(self, which_plan="6.0.2"):
         self.open()
-        time.sleep(2)
 
         # select test project
-        self.browser.switch_to_default_content()
-        self.browser.switch_to_frame("titlebar")
-        Select(self.browser.find_element(
-            By.NAME, "testproject")).select_by_visible_text("Splunk")
-        time.sleep(2)
+        self.switch_to_titleframe()
+        self.select_project()
 
-        self.browser.switch_to_default_content()
-        self.browser.switch_to_frame("mainframe")
+        self.switch_to_mainframe()
         Select(self.browser.find_element(
             By.NAME, "testplan")).select_by_visible_text(
             "{which_plan} Test Plan".format(which_plan=which_plan))
@@ -162,6 +166,18 @@ class TestlinkWeb(object):
         print "Deal with cases in {plan}".format(plan=which_plan)
         self.logger.info("Deal with cases in {plan}"
                          .format(plan=which_plan))
+
+    def switch_to_mainframe(self):
+        """
+        """
+        self.browser.switch_to_default_content()
+        self.browser.switch_to_frame("mainframe")
+
+    def switch_to_titleframe(self):
+        """
+        """
+        self.browser.switch_to_default_content()
+        self.browser.switch_to_frame("titlebar")
 
     def switch_to_workframe(self):
         """
@@ -182,8 +198,7 @@ class TestlinkWeb(object):
         self._open_case(case)
 
         #self.browser.switch_to_frame(self.browser.find_elements(By.XPATH, "//frame")[0])
-        self.browser.switch_to_default_content()
-        self.browser.switch_to_frame("mainframe")
+        self.switch_to_mainframe()
 
         # case can be edited
         try:
@@ -327,3 +342,24 @@ class TestlinkWeb(object):
         self.switch_to_workframe()
         table = AssignTable(self.browser, self.logger)
         table.assign_case_to_tester(case, tester, platform)
+
+    def set_case_keyword(self, case, keyword, add_or_remove="add"):
+        case.print_id()
+        self._get_case_path(case)
+
+        self.open()
+        self.switch_to_titleframe()
+        self.select_project()
+
+        self.switch_to_mainframe()
+        self.browser.find_element(
+            By.LINK_TEXT, "Assign Keywords").click()
+        time.sleep(2)
+
+        self.switch_to_treeframe()
+        tree = CaseTree(self.browser, self.logger)
+        tree.expand_case(case, is_case_select=True)
+
+        self.switch_to_workframe()
+        keyword_maneger = KeywordManager(self.browser, self.logger)
+        keyword_maneger.add_keyword_to_case(case, keyword)

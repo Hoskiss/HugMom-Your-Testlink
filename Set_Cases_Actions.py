@@ -10,7 +10,8 @@ from TestlinkWeb import TestlinkWeb
 
 ACTION_MAP = {"1": "urgency", "2": "priority",
               "3": "update", "4": "add",
-              "5": "remove", "6": "assign"}
+              "5": "remove", "6": "assign",
+              "7": "keyword"}
 #ACTION_MAP = OrderedDict(sorted(act.items(), key=lambda t: t[0]))
 
 ACTION_HELP_STRING = '''
@@ -26,6 +27,8 @@ ACTION_HELP_STRING = '''
    (need testplan, platform)
 6: assign testcases to somebody
    (need testplan, platform, assignee)
+7. add keyword to testcase
+   (need keyword name)
 '''
 
 def parse_arguments():
@@ -33,7 +36,8 @@ def parse_arguments():
     parse options for actions
     """
     parser = argparse.ArgumentParser(
-        description="Run webdriver helper to actions on testlink cases",
+        description=("Run webdriver helper to actions on testlink cases \n" +
+                     "usage example: python ./Set_Cases_Actions.py -i ./ExampleCaseList.txt"),
         formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument("file", type=argparse.FileType('r'),
@@ -41,7 +45,7 @@ def parse_arguments():
                         "example values: ExampleCaseList.txt")
 
     parser.add_argument("-a", "--action", help="Select action on cases, ex: -a 2 3" +
-                        ACTION_HELP_STRING, choices=map(str, range(1, 7)),
+                        ACTION_HELP_STRING, choices=map(str, range(1, 8)),
                         nargs='+', metavar='', dest="action")
     priority_choice = ["l", "L", "m", "M", "h", "H",
                        "low", "Low", "medium", "Medium", "high", "High"]
@@ -55,6 +59,8 @@ def parse_arguments():
                         metavar='', dest="platform")
     parser.add_argument("-e", "--assignee", help="assign cases to whom \n" +
                         "example values: clin", metavar='', dest="assignee")
+    parser.add_argument("-k", "--keyword", help="add which keyword to testcase \n" +
+                        "example values: customer_bugs", metavar='', dest="keyword")
 
     parser.add_argument("-i", "--interactive", help="interactive way to set "+
                         "actions on testcases", action="store_true")
@@ -84,7 +90,7 @@ def check_interactive_args(args):
                                "(multiple actions accepted, ex: 23) \n" +
                                ACTION_HELP_STRING)
         for idx in action_idx:
-            if idx not in map(str, range(1, 7)):
+            if idx not in map(str, range(1, 8)):
                 print ("Invalid selection of actions,\n" +
                        "your selection of actions must between 1 to 6!")
                 sys.exit(errno.EINVAL)
@@ -133,6 +139,10 @@ def check_interactive_args(args):
                                               "ex: Integrated platform/''/Firefox + Linux\n")
                 if args.assignee is None:
                     args.assignee = raw_input("Please enter assignee who take cases, ex: hlin\n")
+
+            elif "keyword" == ACTION_MAP[idx]:
+                if args.keyword is None:
+                    args.keyword = raw_input("Please enter keyword be added to cases, ex: customer_bugs\n")
 
 def check_valid_args(args):
     if args.action is None:
@@ -202,6 +212,12 @@ def check_valid_args(args):
                        "add argument -e, --assignee <ex: clin>")
             sys.exit(errno.EINVAL)
 
+        elif "keyword" == ACTION_MAP[act_idx]:
+            if args.keyword is None:
+                print ("keyword is required when adding keyword to case,\n"
+                       "add argument -k, --keyword <ex: customer_bugs>")
+                sys.exit(errno.EINVAL)
+
 def get_login_credential():
     """
     Get login credential from stdin
@@ -263,6 +279,9 @@ def main():
             elif "assign" == ACTION_MAP[str(act_idx)]:
                 testlink.assign_case(case, args.assignee,
                                      args.testplan, args.platform)
+
+            elif "keyword" == ACTION_MAP[str(act_idx)]:
+                testlink.set_case_keyword(case, args.keyword)
 
     print "DONE"
 
